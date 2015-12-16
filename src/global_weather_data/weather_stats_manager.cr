@@ -8,6 +8,8 @@ class GlobalWeatherData::WeatherStatsManager
 
     @i = Int64.new(0)
     @i_verbose_every = 10000
+
+    @total_time_cost = 0.0
   end
 
   def process_path(path)
@@ -32,8 +34,19 @@ class GlobalWeatherData::WeatherStatsManager
         file.close
         cost = Time.now - t
 
+        @total_time_cost += cost.to_f
+
         puts "file done, #{i.to_s.colorize(:green)}/#{files_filtered.size.to_s.colorize(:yellow)}, cost #{cost.to_i.to_s.colorize(:red)} seconds"
-        puts "estimated #{ ((cost.to_f * (files_filtered.size.to_f - i.to_f) / 60.0) ).round(1).to_s.colorize(:light_red) } minutes"
+
+        begin
+          avg_cost_per_file = @total_time_cost / (i.to_f + 1.0)
+          files_needed_to_process = files_filtered.size.to_f - i.to_f
+          estimated_cost = files_needed_to_process * avg_cost_per_file
+
+          puts "estimated #{ (estimated_cost / 60.0).round(2).to_s.colorize(:light_red) } minutes, #{estimated_cost} seconds, total time #{@total_time_cost}"
+        rescue
+          # just in case
+        end
       end
     end
 
@@ -93,7 +106,7 @@ class GlobalWeatherData::WeatherStatsManager
 
       (1..12).each do |m|
         if c.winds_monthly_max.has_key?(m)
-          d = c.winds_monthly_max[m]
+          d = c.temperatures_monthly_max[m]
           s += "#{d}; "
         else
           s += "; "
@@ -115,7 +128,7 @@ class GlobalWeatherData::WeatherStatsManager
 
       (1..12).each do |m|
         if c.winds_monthly_min.has_key?(m)
-          d = c.winds_monthly_min[m]
+          d = c.temperatures_monthly_min[m]
           s += "#{d}; "
         else
           s += "; "
