@@ -1,0 +1,11 @@
+name: global_weather_data
+version: 0.1.0
+
+authors:
+  - Aleksander Kwiatkowski <bobikx@poczta.fm>
+
+dependencies:
+  crystal_metar_parser:
+    github: akwiatkowski/crystal_metar_parser
+
+license: MIT
