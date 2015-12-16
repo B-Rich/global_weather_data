@@ -1,7 +1,10 @@
 require "../src/global_weather_data"
 
-w = GlobalWeatherData::WeatherStatsManager.new
-w.process_path("input")
+c = GlobalWeatherData::WeatherStatsConverter.new
+c.process_path("input")
+
+#w = GlobalWeatherData::WeatherStatsManager.new
+#w.process_path("input")
 
 # p = GlobalWeatherData::InputPathProcessor.new
 # p.make_it_so
