@@ -14,7 +14,7 @@ class GlobalWeatherData::WeatherStatsManager
     files_filtered = Array(String).new
     Dir.entries(path).each do |f|
       if f =~ /METAR(\d{4})-(\d{2})-(\d{2})/
-        files_filterd << f
+        files_filtered << f
       end
     end
 
