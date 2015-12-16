@@ -20,7 +20,7 @@ class GlobalWeatherData::WeatherStatsManager
 
     files_filtered.sort.each_with_index do |f,i|
       if f =~ /METAR(\d{4})-(\d{2})-(\d{2})/
-        puts "processing file #{f}, #{i.to_s.colorize(:green)}/#{files.size.to_s.colorize(:yellow)}"
+        puts "processing file #{f}, #{i.to_s.colorize(:green)}/#{files_filtered.size.to_s.colorize(:yellow)}"
 
         t = Time.now
 
@@ -32,8 +32,8 @@ class GlobalWeatherData::WeatherStatsManager
         file.close
         cost = Time.now - t
 
-        puts "file done, #{i.to_s.colorize(:green)}/#{files.size.to_s.colorize(:yellow)}, cost #{cost.to_i.to_s.colorize(:red)} seconds"
-        puts "estimated #{ ((cost.to_f * (files.size.to_f - i.to_f) / 60.0) ).round(1).to_s.colorize(:light_red) } minutes"
+        puts "file done, #{i.to_s.colorize(:green)}/#{files_filtered.size.to_s.colorize(:yellow)}, cost #{cost.to_i.to_s.colorize(:red)} seconds"
+        puts "estimated #{ ((cost.to_f * (files_filtered.size.to_f - i.to_f) / 60.0) ).round(1).to_s.colorize(:light_red) } minutes"
       end
     end
 
