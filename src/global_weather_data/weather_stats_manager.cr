@@ -11,8 +11,14 @@ class GlobalWeatherData::WeatherStatsManager
   end
 
   def process_path(path)
-    files = Dir.entries(path).sort
-    files.each_with_index do |f,i|
+    files_filtered = Array(String).new
+    Dir.entries(path).each do |f|
+      if f =~ /METAR(\d{4})-(\d{2})-(\d{2})/
+        files_filterd << f
+      end
+    end
+
+    files_filtered.sort.each_with_index do |f,i|
       if f =~ /METAR(\d{4})-(\d{2})-(\d{2})/
         puts "processing file #{f}, #{i.to_s.colorize(:green)}/#{files.size.to_s.colorize(:yellow)}"
 
