@@ -36,7 +36,7 @@ class GlobalWeatherData::WeatherStatsManager
 
         @total_time_cost += cost.to_f
 
-        puts "file done, #{i.to_s.colorize(:green)}/#{files_filtered.size.to_s.colorize(:yellow)}, cost #{cost.to_i.to_s.colorize(:red)} seconds"
+        puts "file done, #{(i+1).to_s.colorize(:green)}/#{files_filtered.size.to_s.colorize(:yellow)}, cost #{cost.to_i.to_s.colorize(:red)} seconds"
 
         begin
           avg_cost_per_file = @total_time_cost / (i.to_f + 1.0)
@@ -105,7 +105,7 @@ class GlobalWeatherData::WeatherStatsManager
       s += "#{k}; "
 
       (1..12).each do |m|
-        if c.winds_monthly_max.has_key?(m)
+        if c.temperatures_monthly_max.has_key?(m)
           d = c.temperatures_monthly_max[m]
           s += "#{d}; "
         else
@@ -127,7 +127,7 @@ class GlobalWeatherData::WeatherStatsManager
       s += "#{k}; "
 
       (1..12).each do |m|
-        if c.winds_monthly_min.has_key?(m)
+        if c.temperatures_monthly_min.has_key?(m)
           d = c.temperatures_monthly_min[m]
           s += "#{d}; "
         else
