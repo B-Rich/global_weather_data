@@ -27,9 +27,29 @@ class GlobalWeatherData::WeatherStatsCity
     :temperatures,
     :temperatures_daily_max, :temperatures_daily_min
 
-    getter :winds_monthly_max, :winds_monthly_min,
-      :winds,
-      :winds_daily_max, :winds_daily_min
+  getter :winds_monthly_max, :winds_monthly_min,
+    :winds,
+    :winds_daily_max, :winds_daily_min
+
+  def max_temp
+    return -255 if temperatures_monthly_max.size == 0
+    temperatures_monthly_max.values.max.to_i
+  end
+
+  def min_temp
+    return -255 if temperatures_monthly_min.size == 0
+    temperatures_monthly_min.values.min.to_i
+  end
+
+  def max_wind
+    return -1 if winds_monthly_max.size == 0
+    winds_monthly_max.values.max.to_i
+  end
+
+  def min_wind
+    return -1 if winds_monthly_min.size == 0
+    winds_monthly_min.values.min.to_i
+  end
 
   def to_hash
     return {

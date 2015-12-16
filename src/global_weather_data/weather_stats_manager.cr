@@ -1,18 +1,22 @@
 require "json"
 require "yaml"
+require "colorize"
 
 class GlobalWeatherData::WeatherStatsManager
   def initialize
     @cities = Hash(String, GlobalWeatherData::WeatherStatsCity).new
 
     @i = Int64.new(0)
-    @i_verbose_every = 5000
+    @i_verbose_every = 10000
   end
 
   def process_path(path)
-    Dir.new("input").each do |f|
+    files = Dir.entries(path).sort
+    files.each_with_index do |f,i|
       if f =~ /METAR(\d{4})-(\d{2})-(\d{2})/
-        puts "processing file #{f}"
+        puts "processing file #{f}, #{i.to_s.colorize(:green)}/#{files.size.to_s.colorize(:yellow)}"
+
+        t = Time.now
 
         time = Time.new($1.to_i, $2.to_i, $3.to_i)
         file = File.new( File.join([path, f]) )
@@ -20,8 +24,10 @@ class GlobalWeatherData::WeatherStatsManager
           add_metar_string(line, time)
         end
         file.close
+        cost = Time.now - t
 
-        puts "file done"
+        puts "file done, #{i.to_s.colorize(:green)}/#{files.size.to_s.colorize(:yellow)}, cost #{cost.to_i.to_s.colorize(:red)} seconds"
+        puts "estimated #{ ((cost.to_f * (files.size.to_f - i.to_f) / 60.0) ).round(1).to_s.colorize(:light_red) } minutes"
       end
     end
 
@@ -73,7 +79,7 @@ class GlobalWeatherData::WeatherStatsManager
 
     # max
     f = File.new("data/stats_monthly_temp_max.csv", "w")
-    @cities.keys.each do |k|
+    @cities.keys.sort{|a,b| @cities[a].max_temp <=> @cities[b].max_temp }.each do |k|
       c = @cities[k]
 
       s = ""
@@ -95,7 +101,7 @@ class GlobalWeatherData::WeatherStatsManager
 
     # min
     f = File.new("data/stats_monthly_temp_min.csv", "w")
-    @cities.keys.each do |k|
+    @cities.keys.sort{|a,b| @cities[a].min_temp <=> @cities[b].min_temp }.each do |k|
       c = @cities[k]
 
       s = ""
@@ -122,7 +128,7 @@ class GlobalWeatherData::WeatherStatsManager
 
     # max
     f = File.new("data/stats_monthly_wind_max.csv", "w")
-    @cities.keys.each do |k|
+    @cities.keys.sort{|a,b| @cities[a].max_wind <=> @cities[b].max_wind }.each do |k|
       c = @cities[k]
 
       s = ""
@@ -144,7 +150,7 @@ class GlobalWeatherData::WeatherStatsManager
 
     # min
     f = File.new("data/stats_monthly_wind_min.csv", "w")
-    @cities.keys.each do |k|
+    @cities.keys.sort{|a,b| @cities[a].min_temp <=> @cities[b].min_temp }.each do |k|
       c = @cities[k]
 
       s = ""
