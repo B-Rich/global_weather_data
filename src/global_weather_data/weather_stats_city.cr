@@ -75,6 +75,11 @@ class GlobalWeatherData::WeatherStatsCity
   end
 
   def add_temperature(d, metar)
+    add_temperature_time(d, metar.time.time_from)
+  end
+
+
+  def add_temperature_time(d, time)
     di = d.to_i
     if di > -100
       # increment counter
@@ -85,7 +90,7 @@ class GlobalWeatherData::WeatherStatsCity
       end
 
       # dailies
-      day = metar.time.time_to.day_of_year
+      day = time.day_of_year
       if @temperatures_daily_max.has_key?(day)
         @temperatures_daily_max[day] = di if @temperatures_daily_max[day] < di
       else
@@ -99,7 +104,7 @@ class GlobalWeatherData::WeatherStatsCity
       end
 
       # monthly
-      month = metar.time.time_to.month
+      month = time.month
       if @temperatures_monthly_max.has_key?(month)
         @temperatures_monthly_max[month] = di if @temperatures_monthly_max[month] < di
       else
@@ -115,6 +120,10 @@ class GlobalWeatherData::WeatherStatsCity
   end
 
   def add_wind(d, metar)
+    add_wind_time(d, metar.time.time_from)
+  end
+
+  def add_wind_time(d, time)
     di = d.to_i
     if di >= 0
       # increment counter
@@ -125,7 +134,7 @@ class GlobalWeatherData::WeatherStatsCity
       end
 
       # dailies
-      day = metar.time.time_to.day_of_year
+      day = time.day_of_year
       if @winds_daily_max.has_key?(day)
         @winds_daily_max[day] = di if @winds_daily_max[day] < di
       else
@@ -139,7 +148,7 @@ class GlobalWeatherData::WeatherStatsCity
       end
 
       # monthly
-      month = metar.time.time_to.month
+      month = time.month
       if @winds_monthly_max.has_key?(month)
         @winds_monthly_max[month] = di if @winds_monthly_max[month] < di
       else

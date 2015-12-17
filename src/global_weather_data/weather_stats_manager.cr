@@ -12,79 +12,63 @@ class GlobalWeatherData::WeatherStatsManager
     @total_time_cost = 0.0
   end
 
-  def process_path(path)
-    files_filtered = Array(String).new
-    Dir.entries(path).each do |f|
-      if f =~ /METAR(\d{4})-(\d{2})-(\d{2})/
-        files_filtered << f
-      end
-    end
-
+  def process
+    path = "data/metar_processed"
+    files_filtered = Dir.entries(path)
     files_filtered.sort.each_with_index do |f,i|
-      if f =~ /METAR(\d{4})-(\d{2})-(\d{2})/
-        puts "processing file #{f}, #{i.to_s.colorize(:green)}/#{files_filtered.size.to_s.colorize(:yellow)}"
-
+      if f =~ /(\d{4})_(\d{2})_(\d{2})/
         t = Time.now
 
-        time = Time.new($1.to_i, $2.to_i, $3.to_i)
         file = File.new( File.join([path, f]) )
         file.each_line do |line|
-          add_metar_string(line, time)
+          add_line(line)
         end
         file.close
-        cost = Time.now - t
 
+        cost = Time.now - t
         @total_time_cost += cost.to_f
 
-        puts "file done, #{(i+1).to_s.colorize(:green)}/#{files_filtered.size.to_s.colorize(:yellow)}, cost #{cost.to_i.to_s.colorize(:red)} seconds"
+          puts "file done, #{(i+1).to_s.colorize(:green)}/#{files_filtered.size.to_s.colorize(:yellow)}, cost #{cost.to_i.to_s.colorize(:red)} seconds"
 
-        begin
-          avg_cost_per_file = @total_time_cost / (i.to_f + 1.0)
-          files_needed_to_process = files_filtered.size.to_f - i.to_f
-          estimated_cost = files_needed_to_process * avg_cost_per_file
+          begin
+            avg_cost_per_file = @total_time_cost / (i.to_f + 1.0)
+            files_needed_to_process = files_filtered.size.to_f - i.to_f
+            estimated_cost = files_needed_to_process * avg_cost_per_file
 
-          puts "estimated #{ (estimated_cost / 60.0).round(2).to_s.colorize(:light_red) } minutes, #{estimated_cost} seconds, total time #{@total_time_cost}"
-        rescue
-          # just in case
-        end
+            puts "estimated #{ (estimated_cost / 60.0).round(2).to_s.colorize(:light_red) } minutes, #{estimated_cost} seconds, total time #{@total_time_cost}"
+          rescue
+            # just in case
+          end
       end
+
     end
 
-    write_output
+    # write_output
   end
 
-  def add_metar_string(string, time)
-    options = {
-      ":year" => time.year.to_s,
-      ":month" => time.month.to_s
-    }
-    s = string.gsub(/,/, " ")
-
-    begin
-      metar = CrystalMetarParser::Parser.parse(s, options)
-      add_metar(metar) if metar.city.code != ""
-    rescue ArgumentError
-      #puts metar.time.time_from
+  def add_line(line)
+    if line =~ /(\w{4}); ([1234567890.-]+); ([1234567890.-]+); ([1234567890.-]+)/
+      add_metar($1, $2.to_i, $3.to_f, $4.to_f)
     end
   end
 
   def increment_counter
     if @i % @i_verbose_every == 0
-      puts "added #{@i}"
+      puts "processed #{@i}"
     end
     @i += 1
   end
 
-  def add_metar(metar)
+  def add_metar(code, time, temp, wind)
     increment_counter
 
-    k = metar.city.code
-    unless @cities.has_key?(k)
-      @cities[k] = GlobalWeatherData::WeatherStatsCity.new
-      @cities[k].code = k
+    unless @cities.has_key?(code)
+      @cities[code] = GlobalWeatherData::WeatherStatsCity.new
+      @cities[code].code = code
     end
 
-    @cities[k].add_metar(metar)
+    @cities[code].add_temperature_time(temp, Time.epoch(time))
+    @cities[code].add_wind_time(wind, Time.epoch(time))
   end
 
   def write_output
